@@ -31,7 +31,7 @@ def run(chain, chain_name="main", **ctx):
                 f = ret
 
             elif ret:
-                out = ret
+                ctx[run.__name__] = ret
 
 
         except Stop, e:
@@ -43,6 +43,8 @@ def run(chain, chain_name="main", **ctx):
 
         if not f and fchain:
             f = fchain.pop(0)
+
+    return ctx
 
 
 if __name__ == '__main__':
