@@ -1,5 +1,6 @@
 import types
 import logging
+from time import time
 
 
 class Stop(Exception):
@@ -16,7 +17,7 @@ def run(chain, chain_name="main", **ctx):
     out = None
 
     while f:
-        logging.debug('chain %s run %r from %r' % (chain_name, f, fchain))
+        time_pre = time()
 
         try:
             run = f
@@ -40,6 +41,14 @@ def run(chain, chain_name="main", **ctx):
         except Derail, e:
             logging.debug("derail to %r" % (e.args,))
             fchain = list(e.args)
+        finally:
+            delta = time() - time_pre
+            if delta > 1:
+                log_f = logging.warning
+            else:
+                log_f = logging.debug
+
+            log_f('run %r in %f from %r' % (run, delta, fchain))
 
         if not f and fchain:
             f = fchain.pop(0)
