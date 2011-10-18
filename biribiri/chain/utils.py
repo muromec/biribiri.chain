@@ -44,10 +44,12 @@ def match(ftype='any', **pattern):
         def match__(**kw):
 
             for k,v in pattern.items():
-                if not kw.get(k) == v:
+                val = kw.get(k)
+                if not val == v and \
+                  not (isinstance(v, type) and isinstance(val, v)):
                     return
 
-            ctx = kw.get('upd_ctx')
+            ctx = kw.get('upd_ctx') or {}
             ctx['found_%s' % ftype] = True
 
             return f
