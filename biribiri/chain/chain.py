@@ -1,6 +1,8 @@
 import types
 import logging
 from time import time
+import sys
+import traceback
 
 
 class Stop(Exception):
@@ -9,12 +11,19 @@ class Stop(Exception):
 class Derail(Exception):
     pass
 
-def run(chain, chain_name="main", **ctx):
+def exc_raise(exc, **kw):
+    logging.error("chain failed %s" %
+            str.join("",traceback.format_exception(*exc))
+    )
+    raise Stop()
+
+
+def run(chain, chain_name="main", exception_handler=exc_raise, **ctx):
     fchain = chain[:]
 
     f = fchain.pop(0)
+    time_start = time()
 
-    out = None
 
     while f:
         time_pre = time()
@@ -31,22 +40,30 @@ def run(chain, chain_name="main", **ctx):
             elif isinstance(ret, types.FunctionType):
                 f = ret
 
-            elif ret:
-                ctx[run.__name__] = ret
-
-
         except Stop, e:
             break
         
         except Derail, e:
             logging.debug("derail to %r" % (e.args,))
             fchain = list(e.args)
+        except Exception, e:
+            # if failed at failing, just die
+            if run == exception_handler:
+                raise
+
+            f = exception_handler
+            ctx['exc'] = sys.exc_info()
+            continue
         finally:
             delta = time() - time_pre
             if delta > 1:
                 log_f = logging.warning
             else:
                 log_f = logging.debug
+
+            all_delta = time() - time_start
+            if all_delta > 0.5:
+                break
 
             log_f('run %r in %f from %r' % (run, delta, fchain))
 
