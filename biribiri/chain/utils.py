@@ -102,12 +102,18 @@ def upd_ctx(*names):
     def upd_ctx_(f):
         def upd_ctx__(**kw):
             ret = f(**kw)
+            if not ret:
+                return
 
+            ctx = kw.get('upd_ctx')
             if isinstance(ret, tuple) and len(ret) >= len(names):
-                ctx = kw.get('upd_ctx')
                 ctx.update(zip(names, ret))
 
-            return ret[-1]
+                return ret[-1]
+
+            elif len(names) == 1:
+                ctx[names[0]] = ret
+
 
         upd_ctx__.__name__ = '@upd_ctx %s' % f.__name__
         return upd_ctx__
