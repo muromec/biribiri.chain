@@ -18,7 +18,7 @@ def exc_raise(exc, **kw):
     raise Stop()
 
 
-def run(chain, chain_name="main", exception_handler=exc_raise, **ctx):
+def run(chain, chain_name="main", exception_handler=exc_raise, run_limit=10, **ctx):
     fchain = chain[:]
 
     f = fchain.pop(0)
@@ -62,7 +62,7 @@ def run(chain, chain_name="main", exception_handler=exc_raise, **ctx):
                 log_f = logging.debug
 
             all_delta = time() - time_start
-            if all_delta > 0.5:
+            if all_delta > run_limit:
                 break
 
             log_f('run %r in %f from %r' % (run, delta, fchain))
