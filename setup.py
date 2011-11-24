@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "biribiri.chain",
-    version = "0.4",
+    version = "0.5",
     description = 'Chain runner utility',
     author = 'Ilya Petrov',
     author_email = 'ilya.muromec@gmail.com',
