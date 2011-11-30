@@ -55,7 +55,8 @@ def match(ftype='any', **pattern):
             return f
 
 
-        match__.__name__ = '@match %s' % f.__name__
+        if hasattr(f, "__name__"):
+            match__.__name__ = '@match %s' % f.__name__
         return match__
 
     return match_
