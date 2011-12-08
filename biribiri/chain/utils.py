@@ -45,9 +45,23 @@ def match(ftype='any', **pattern):
 
             for k,v in pattern.items():
                 val = kw.get(k)
-                if not val == v and \
-                  not (isinstance(v, type) and isinstance(val, v)):
+                if not (
+                  val == v
+                  or
+                  (
+                          isinstance(v, type)
+                          and isinstance(val, v)
+                  )
+                  or
+                  (
+                      isinstance(v, type)
+                      and isinstance(val, type)
+                      and issubclass(val, v)
+                  )):
                     return
+
+            if 'upd_ctx' not in kw:
+                return f(**kw)
 
             ctx = kw.get('upd_ctx') or {}
             ctx['found_%s' % ftype] = True
